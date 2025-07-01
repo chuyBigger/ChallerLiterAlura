@@ -1,8 +1,11 @@
 package com.aluracursos.challergerliteralura.modelos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.util.Date;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 
 @Entity
 @Table(name = "Autores")
@@ -12,17 +15,17 @@ public class Autor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
-    private Date fechaNacimiento;
-    private Date fechaDefuncion;
+    private Integer fechaNacimiento;
+    private Integer fechaDefuncion;
     @ManyToOne
     private Libro libro;
 
-    public Autor(Long id, String nombre, Date fechaNacimiento, Date fechaDefuncion, Libro libro) {
-        this.id = id;
-        this.nombre = nombre;
-        this.fechaNacimiento = fechaNacimiento;
-        this.fechaDefuncion = fechaDefuncion;
-        this.libro = libro;
+    public Autor(){}
+
+    public Autor(DatosAutor dA) {
+        this.nombre = dA.nombre();
+        this.fechaNacimiento = dA.fechaNacimiento();
+        this.fechaDefuncion = dA.fechaDefuncion();
     }
 
     public Long getId() {
@@ -41,19 +44,19 @@ public class Autor {
         this.nombre = nombre;
     }
 
-    public Date getFechaNacimiento() {
+    public Integer getFechaNacimiento() {
         return fechaNacimiento;
     }
 
-    public void setFechaNacimiento(Date fechaNacimiento) {
+    public void setFechaNacimiento(Integer fechaNacimiento) {
         this.fechaNacimiento = fechaNacimiento;
     }
 
-    public Date getFechaDefuncion() {
+    public Integer getFechaDefuncion() {
         return fechaDefuncion;
     }
 
-    public void setFechaDefuncion(Date fechaDefuncion) {
+    public void setFechaDefuncion(Integer fechaDefuncion) {
         this.fechaDefuncion = fechaDefuncion;
     }
 
@@ -65,12 +68,19 @@ public class Autor {
         this.libro = libros;
     }
 
+    public Libro getLibro() {
+        return libro;
+    }
+
+    public void setLibro(Libro libro) {
+        this.libro = libro;
+    }
+
     @Override
     public String toString() {
         return
-                "Autor: " + nombre + '\'' +
-                "Fecha de Nacimiento: " + fechaNacimiento +
-                "Fecha de Defuncion" + fechaDefuncion +
-                "Libros='" + libro ;
+                "Autor: " + nombre +
+                " /Fecha de Nacimiento: " + fechaNacimiento +
+                " /Fecha de Defuncion: " + fechaDefuncion ;
     }
 }

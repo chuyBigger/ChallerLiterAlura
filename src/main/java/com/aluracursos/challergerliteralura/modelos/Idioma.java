@@ -1,5 +1,8 @@
 package com.aluracursos.challergerliteralura.modelos;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum Idioma {
 
     ESPAÑOL("es"),
@@ -19,14 +22,22 @@ public enum Idioma {
         this.abreviatura = abreviatura;
     }
 
-    public static Idioma fromIdioma(String nombre) {
+    @JsonCreator
+    public static Idioma fromIdioma(String abreviatura) {
         for (Idioma idioma : Idioma.values()) {
-            if (idioma.name().equalsIgnoreCase(nombre)){
+            if (idioma.abreviatura.equalsIgnoreCase(abreviatura)){
                 return idioma;
             }
         }
-        throw new IllegalArgumentException("Idioma no reconocido: "+ nombre);
+        throw new IllegalArgumentException("Idioma no reconocido: "+ abreviatura);
+    }
+
+
+    @JsonValue
+    public String getAbreviatura(){
+        return abreviatura;
     }
 
 
 }
+

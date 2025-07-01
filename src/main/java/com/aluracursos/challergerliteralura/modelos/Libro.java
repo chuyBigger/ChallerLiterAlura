@@ -1,9 +1,11 @@
 package com.aluracursos.challergerliteralura.modelos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
 @Table(name = "Libros")
 public class Libro {
@@ -19,13 +21,24 @@ public class Libro {
     private List<Idioma> idioma;
     private Integer totalDescargas;
 
+    public Libro(){}
 
-    public Libro(Long id, String titulo, List<Autor> autores, List<Idioma> idioma, Integer totalDescargas) {
-        this.id = id;
-        this.titulo = titulo;
-        this.autor = autores;
-        this.idioma = idioma;
-        this.totalDescargas = totalDescargas;
+
+    public Libro(DatosLibro dL) {
+
+        this.titulo = dL.titulo();
+
+        this.autor = dL.autor()
+                .stream()
+                .map(datos -> {
+                    Autor a =new Autor(datos);
+                    a.setLibro(this);
+                    return a;
+                })
+                .toList();
+
+        this.idioma = dL.idioma();
+        this.totalDescargas = dL.totalDescargas();
     }
 
 
