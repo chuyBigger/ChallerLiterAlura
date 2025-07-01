@@ -6,6 +6,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.stream.StreamSupport;
+
 public class ConvertirDatos implements IConvierteDatos {
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -18,22 +20,39 @@ public class ConvertirDatos implements IConvierteDatos {
             throw new RuntimeException(e);
         }
     }
-
-    public Libro obtnerDatosLibro1(String json) {
+            // busca coincidence exacta dentro del array "results"
+    public Libro obtenerLibroArray(String json, String tituloVerificado) {
         try {
             JsonNode root = objectMapper.readTree(json);
             JsonNode resultsNode = root.get("results");
-            if (resultsNode != null && resultsNode.isArray() && resultsNode.size() > 0) {
-                JsonNode primerLibroNode = resultsNode.get(0);
-                DatosLibro datosLibro = objectMapper.treeToValue(primerLibroNode, DatosLibro.class);
-                return new Libro(datosLibro);
-            } else {
-                throw new RuntimeException("No hay libros en 'Results'");
-            }
 
+            if (resultsNode != null && resultsNode.isArray()) {
+                return StreamSupport.stream(resultsNode.spliterator(), false)
+                        .filter(node -> node.has("title") &&
+                                tituloVerificado.equalsIgnoreCase(node.get("title").asText()))
+                        .findFirst()
+                        .map(this::convertirNodeALibro)
+                        .orElseThrow(() -> new RuntimeException("No se encontró coincidencia exacta con el título: " + tituloVerificado));
+            } else {
+                throw new RuntimeException("""
+                        "results" esta vacio o no es un array valido
+                        """);
+            }
         } catch (Exception e) {
             throw new RuntimeException("Error al convertir el Json en Libro", e);
+
+        }
+
+    }
+
+    private Libro convertirNodeALibro(JsonNode node) {
+        try {
+            DatosLibro datosLibro = objectMapper.treeToValue(node, DatosLibro.class);
+            return new Libro(datosLibro);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al convertir json a libro", e);
         }
     }
+
 
 }
