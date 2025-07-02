@@ -15,7 +15,7 @@ public class Libro {
     private Long id;
     @Column(unique = true)
     private String titulo;
-    @OneToMany(mappedBy = "libro", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "libro", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Autor> autor;
     @Enumerated(EnumType.STRING)
     private Idioma idioma;

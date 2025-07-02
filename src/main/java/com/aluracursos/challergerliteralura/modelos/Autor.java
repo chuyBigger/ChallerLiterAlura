@@ -14,10 +14,11 @@ public class Autor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true, nullable = false)
     private String nombre;
     private Integer fechaNacimiento;
     private Integer fechaDefuncion;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Libro libro;
 
     public Autor(){}
@@ -78,9 +79,19 @@ public class Autor {
 
     @Override
     public String toString() {
-        return
-                "Autor: " + nombre +
-                " /Fecha de Nacimiento: " + fechaNacimiento +
-                " /Fecha de Defuncion: " + fechaDefuncion ;
+        return String.format("""
+                
+                ===========================
+                AUTOR DE LIBROS
+                
+                Nombre: %s
+                Fecha de Nacimiento: %s
+                Fecha de Defuncion: %s
+                ___________________________
+                ===========================
+                """, nombre, fechaNacimiento,fechaDefuncion);
+//                "Autor:\n " + nombre +
+//                " / Fecha de Nacimiento: " + fechaNacimiento +
+//                " / Fecha de Defuncion: " + fechaDefuncion ;
     }
 }

@@ -1,5 +1,6 @@
 package com.aluracursos.challergerliteralura.principal;
 
+import com.aluracursos.challergerliteralura.modelos.Autor;
 import com.aluracursos.challergerliteralura.modelos.Libro;
 import com.aluracursos.challergerliteralura.repositorio.LibroRepositorio;
 import com.aluracursos.challergerliteralura.service.*;
@@ -9,13 +10,14 @@ import java.util.Scanner;
 
 public class Principal {
 
+    private LibroRepositorio repository = null;
+
     Scanner scanner = new Scanner(System.in);
     ConsumoApi consumoApi = new ConsumoApi();
     ConvertirDatos convertirDatos = new ConvertirDatos();
     ConfigUrl configUrl = new ConfigUrl();
     ConsultaGemini consultaGemini = new ConsultaGemini();
-
-    private final LibroRepositorio repository;
+    FuncionesAdicionales funcionesAdicionales = new FuncionesAdicionales(repository);
 
 
     Integer entradaInt;
@@ -37,7 +39,7 @@ public class Principal {
                                 2.- Lista de todo los libros en Base de Datos
                                 3.- Mostrar Lista De Autores en la Base de Datos 
                                 4.- Mostrar Lista de Autores vivos en un año especifico
-                                5.-
+                                5.- 
                     
                                 0.- Salir;
                     
@@ -51,7 +53,6 @@ public class Principal {
                 System.out.println("El Valor ingresado no es correcto vuelve ha intentarlo...");
                 continue;
             }
-
             switch (entradaInt) {
                 case 1:
                     buscarLibroTitulo();
@@ -60,7 +61,11 @@ public class Principal {
                     mostrarListaLibrosDB();
                     break;
                 case 3:
-
+                    mostrarListaAutores();
+                    break;
+                case 4:
+                    mostrarListaAutoresVivosEn();
+                    break;
                 case 0:
                     System.out.println("Gracias por usar nuestro sistema");
                     System.out.println("Hasta Luego ...");
@@ -72,7 +77,6 @@ public class Principal {
     // funcion para buscar libro
     private void buscarLibroTitulo() {
         String busquedaTitulo;
-        String busquedaAutor;
         String tituloTraducidoVerificado;
         String url;
         // ciclo de consulta para saber si esta en la DB o hay qeu buscar en el api
@@ -112,20 +116,41 @@ public class Principal {
                 System.out.println(nuevoLibro);
                 repository.save(nuevoLibro);
                 System.out.println("Libro guardado con exito !!");
-            }catch (RuntimeException e){
+            } catch (RuntimeException e) {
                 System.out.println("No se encontro coicidencia exacta: " + e.getMessage());
                 // todo aqui hay que crear un menu de 3 sugerencia que arroja la api; -> Pendiente
             }
         }
     }
 
-    private void mostrarListaLibrosDB(){
-        List<Libro> listaLibrosBaseDatos = repository.findAll();
-        if (listaLibrosBaseDatos.isEmpty()){
+    private void mostrarListaLibrosDB() {
+        List<Libro> listaLibrosDB = repository.findAll();
+        if (listaLibrosDB.isEmpty()) {
             System.out.println("No hay Libros en la base de Datos");
         } else {
             System.out.println("Lista de libros DB completa");
-            listaLibrosBaseDatos.forEach(System.out::println);
+            listaLibrosDB.forEach(System.out::println);
+        }
+    }
+
+    private void mostrarListaAutores() {
+        List<Autor> listaAutoresDB = repository.findAllAutores();
+        if (listaAutoresDB.isEmpty()) {
+            System.out.println("⚠️ No hay autores registrados en la base de datos...");
+        } else {
+            System.out.println("Lista de Autores Completa: ");
+            listaAutoresDB.forEach(System.out::println);
+        }
+    }
+
+    private void mostrarListaAutoresVivosEn() {
+        Integer anio = funcionesAdicionales.entradaAnioValido();
+        List<Autor> autoresVivosEn = repository.autoresVivosEn(anio);
+        if (autoresVivosEn.isEmpty()) {
+            System.out.println("⚠️ No se encontraron autores vivos en el año: " + anio);
+        }else {
+            System.out.println("Los autores que vivieron en el mismo año son: ");
+            autoresVivosEn.forEach(System.out::println);
         }
     }
 
