@@ -20,7 +20,8 @@ public class ConvertirDatos implements IConvierteDatos {
             throw new RuntimeException(e);
         }
     }
-            // busca coincidence exacta dentro del array "results"
+
+    // busca coincidence exacta dentro del array "results"
     public Libro obtenerLibroArray(String json, String tituloVerificado) {
         try {
             JsonNode root = objectMapper.readTree(json);

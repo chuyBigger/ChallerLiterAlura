@@ -18,7 +18,7 @@ public class Libro {
     @OneToMany(mappedBy = "libro", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Autor> autor;
     @Enumerated(EnumType.STRING)
-    private List<Idioma> idioma;
+    private Idioma idioma;
     private Integer totalDescargas;
 
     public Libro(){}
@@ -30,14 +30,20 @@ public class Libro {
 
         this.autor = dL.autor()
                 .stream()
+                .findFirst()
                 .map(datos -> {
                     Autor a =new Autor(datos);
                     a.setLibro(this);
-                    return a;
+                    return List.of(a);
                 })
-                .toList();
+                .orElse(List.of());
 
-        this.idioma = dL.idioma();
+        this.idioma = dL.idioma()
+                .stream()
+                .findFirst()
+                .map(Idioma::fromIdioma)
+                .orElse(null);
+
         this.totalDescargas = dL.totalDescargas();
     }
 
@@ -66,12 +72,16 @@ public class Libro {
         this.autor = autors;
     }
 
-    public List<Idioma> getIdioma() {
+    public Idioma getIdioma() {
         return idioma;
     }
 
-    public void setIdioma(List<Idioma> idioma) {
+    public void setIdioma(Idioma idioma) {
         this.idioma = idioma;
+    }
+
+    public void setTotalDescargas(Integer totalDescargas) {
+        this.totalDescargas = totalDescargas;
     }
 
     public int getTotalDescargas() {

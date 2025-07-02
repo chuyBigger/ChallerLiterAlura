@@ -1,13 +1,11 @@
 package com.aluracursos.challergerliteralura.principal;
 
-import com.aluracursos.challergerliteralura.modelos.DatosLibro;
 import com.aluracursos.challergerliteralura.modelos.Libro;
 import com.aluracursos.challergerliteralura.repositorio.LibroRepositorio;
 import com.aluracursos.challergerliteralura.service.*;
 
 import java.util.List;
 import java.util.Scanner;
-import java.util.StringTokenizer;
 
 public class Principal {
 
@@ -36,8 +34,10 @@ public class Principal {
                      ==============================================
                      ªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªª
                                 1.- Buscar Libros por titulo
-                                2.- 
-                                3.-
+                                2.- Lista de todo los libros en Base de Datos
+                                3.- Mostrar Lista De Autores en la Base de Datos 
+                                4.- Mostrar Lista de Autores vivos en un año especifico
+                                5.-
                     
                                 0.- Salir;
                     
@@ -56,10 +56,15 @@ public class Principal {
                 case 1:
                     buscarLibroTitulo();
                     break;
+                case 2:
+                    mostrarListaLibrosDB();
+                    break;
+                case 3:
+
                 case 0:
                     System.out.println("Gracias por usar nuestro sistema");
                     System.out.println("Hasta Luego ...");
-                    break;
+                    return;
             }
         } while (true);
     }
@@ -76,7 +81,7 @@ public class Principal {
         busquedaTitulo = scanner.nextLine();
         if (!busquedaTitulo.isEmpty()) {
             // consulta a Gemini si el titulo es correcto y lo traduce al ingles ya que la api tiene por lo general los titulos en ingles
-            tituloTraducidoVerificado = ConsultaGemini.verificarBusquedaTraduccion(busquedaTitulo);
+            tituloTraducidoVerificado = consultaGemini.verificarBusquedaTraduccion(busquedaTitulo);
             System.out.println("Esta es la respsuta de gemini\n" + tituloTraducidoVerificado + "Toda esta ...\n");
         } else {
             System.out.println("⚠️ Error No ingreso un valor intenta de nuevo");
@@ -101,18 +106,27 @@ public class Principal {
             System.out.println("Buscando Libro en el Api 🔎🔎");
             String json = consumoApi.obtenerDatos(url);
             System.out.println(json);
-            Libro nuevoLibro = convertirDatos.obtenerLibroArray(json, tituloTraducidoVerificado); // todo Vamos aqui convietiendo datos vamos a buscar dentro de la list de "title" coincidencia exacta
-            System.out.println(nuevoLibro);
-//
-//            if (nuevoLibro != null) {
-//                // si nuevo libro no da null lo guarda en la base de Datos
-//                repository.save(nuevoLibro);
-//                System.out.println("Libro guardado en la base de datos");
-//                System.out.println(nuevoLibro);
-//            }
+            Libro nuevoLibro;
+            try {  //  buscar dentro de la list de "title" coincidencia exacta
+                nuevoLibro = convertirDatos.obtenerLibroArray(json, tituloTraducidoVerificado);
+                System.out.println(nuevoLibro);
+                repository.save(nuevoLibro);
+                System.out.println("Libro guardado con exito !!");
+            }catch (RuntimeException e){
+                System.out.println("No se encontro coicidencia exacta: " + e.getMessage());
+                // todo aqui hay que crear un menu de 3 sugerencia que arroja la api; -> Pendiente
+            }
         }
+    }
 
-
+    private void mostrarListaLibrosDB(){
+        List<Libro> listaLibrosBaseDatos = repository.findAll();
+        if (listaLibrosBaseDatos.isEmpty()){
+            System.out.println("No hay Libros en la base de Datos");
+        } else {
+            System.out.println("Lista de libros DB completa");
+            listaLibrosBaseDatos.forEach(System.out::println);
+        }
     }
 
 }
