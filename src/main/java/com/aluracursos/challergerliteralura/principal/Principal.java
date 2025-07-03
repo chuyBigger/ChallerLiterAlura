@@ -3,39 +3,40 @@ package com.aluracursos.challergerliteralura.principal;
 import com.aluracursos.challergerliteralura.modelos.Autor;
 import com.aluracursos.challergerliteralura.modelos.Idioma;
 import com.aluracursos.challergerliteralura.modelos.Libro;
+import com.aluracursos.challergerliteralura.repositorio.AutorRepositorio;
 import com.aluracursos.challergerliteralura.repositorio.LibroRepositorio;
 import com.aluracursos.challergerliteralura.service.*;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Scanner;
 
 @Component
 public class Principal {
 
     private LibroRepositorio repository = null;
+    private AutorRepositorio autorRepository = null;
 
     Scanner scanner = new Scanner(System.in);
     ConsumoApi consumoApi = new ConsumoApi();
     ConvertirDatos convertirDatos = new ConvertirDatos();
     ConfigUrl configUrl = new ConfigUrl();
     ConsultaGemini consultaGemini = new ConsultaGemini();
-    private  final FuncionesAdicionales funcionesAdicionales;
+    private final FuncionesAdicionales funcionesAdicionales;
 
-
-    Integer entradaInt;
     @Autowired
-    public Principal(LibroRepositorio repository, FuncionesAdicionales funcionesAdicionales) {
+    public Principal(LibroRepositorio repository, AutorRepositorio autorRepository, FuncionesAdicionales funcionesAdicionales) {
 
         this.repository = repository;
+        this.autorRepository = autorRepository;
         this.funcionesAdicionales = funcionesAdicionales;
     }
 
 
     public void muestraElMenu() {
+
+        Integer entradaInt;
 
         System.out.println("Hola bienvenido al sistema 'LiterLibrary'");
 
@@ -49,8 +50,7 @@ public class Principal {
                                 4.- Mostrar Lista de Autores vivos en un año especifico
                                 5.- Mostrar Lista de libros Por idioma seleccionado 
                                 6.- Mostrar Cantidad de Libros Por idioma en base de datos 
-                                7.- 
-                                8.-
+                                7.- Mostrar Lista de Autores vivos en un año especifico (Usando "Derived Query")
                     
                                 0.- Salir;
                     
@@ -84,7 +84,7 @@ public class Principal {
                     mostrarListaLibrosTodosIdiomas();
                     break;
                 case 7:
-                    mostrarListaAutoresVivosEnDeliveryQuerys();
+                    mostrarAutoresVivosEnDerivedQuery();
                     break;
                 case 0:
                     System.out.println("Gracias por usar nuestro sistema");
@@ -144,7 +144,9 @@ public class Principal {
     }
 
     private void mostrarListaLibrosDB() {
+
         List<Libro> LibrosDB = funcionesAdicionales.todosLosLibrosDB();
+
     }
 
     private void mostrarListaAutores() {
@@ -162,25 +164,25 @@ public class Principal {
         List<Autor> autoresVivosEn = repository.autoresVivosEn(anio);
         if (autoresVivosEn.isEmpty()) {
             System.out.println("⚠️ No se encontraron autores vivos en el año: " + anio);
-        }else {
+        } else {
             System.out.println("Los autores que vivieron en el mismo año son: ");
             autoresVivosEn.forEach(System.out::println);
         }
     }
 
-    private void mostrarListaIdiomaSeleccionado(){
+    private void mostrarListaIdiomaSeleccionado() {
         Idioma idiomaBusqueda = funcionesAdicionales.entradaSolicitudLibrosIdioma();
         List<Libro> listaLibrosIdioma = repository.findByIdioma(idiomaBusqueda);
-        if (!listaLibrosIdioma.isEmpty()){
-            System.out.println("Estos son los libros en el idioma: "+ idiomaBusqueda );
+        if (!listaLibrosIdioma.isEmpty()) {
+            System.out.println("Estos son los libros en el idioma: " + idiomaBusqueda);
             listaLibrosIdioma.forEach(System.out::println);
-        }else {
+        } else {
             System.out.println("⚠️ No hay libros disponibles en ese idioma.");
         }
 
     }
 
-    private void mostrarListaLibrosTodosIdiomas(){
+    private void mostrarListaLibrosTodosIdiomas() {
         List<Object[]> cantidadLibrosporidioma = repository.contarLibrosIdioma();
         System.out.println("""
                 ==============================================
@@ -188,7 +190,7 @@ public class Principal {
                 ______________________________________________
                 """);
 
-        for(Object[] resultado : cantidadLibrosporidioma){
+        for (Object[] resultado : cantidadLibrosporidioma) {
 
             Idioma idioma = (Idioma) resultado[0];
             Long cantidad = (Long) resultado[1];
@@ -197,15 +199,22 @@ public class Principal {
         }
 
         System.out.println(" ______________________________________________");
-        
-    }
-
-    private void mostrarListaAutoresVivosEnDeliveryQuerys(){
-
-        return
 
     }
+    // todo Por uso de Derived Query se creo autorRepositorio se puede realizar una refactorizacion de repositorios
+    private void mostrarAutoresVivosEnDerivedQuery() {
 
+        Integer anio = funcionesAdicionales.entradaAnioValido();
+        List<Autor> listaAutoresVivosEn = funcionesAdicionales.listaAutoresDefuntosAño(anio);
+
+        if (!listaAutoresVivosEn.isEmpty()) {
+            System.out.println("Los autores vivos en el año: " + anio + ".");
+            listaAutoresVivosEn.forEach(System.out::println);
+        } else {
+            System.out.println("No hay autores vivos en el año: " + anio + " registrados en la base de datos.");
+        }
+
+    }
 
 
 }

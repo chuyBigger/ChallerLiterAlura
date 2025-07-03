@@ -27,7 +27,5 @@ public interface LibroRepositorio extends JpaRepository<Libro, Long> {
     @Query("SELECT l.idioma, COUNT(l) FROM Libro l GROUP BY l.idioma")
     List<Object[]> contarLibrosIdioma();
 
-    List<Autor> findByFechaNacimientoLessThanEqualAndFechaDefuncionGreaterThanOrFechaDefuncionIsNull(Integer anio1, Integer anio2);
-
 
 }

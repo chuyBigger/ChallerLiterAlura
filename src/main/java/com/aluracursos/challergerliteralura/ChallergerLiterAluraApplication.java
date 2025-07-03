@@ -14,12 +14,9 @@ public class ChallergerLiterAluraApplication implements CommandLineRunner {
     @Autowired
     Principal principal;
 
-    @Autowired
-    LibroRepositorio repository ;
 
     @Autowired
     private ConfigurableApplicationContext context;
-
 
 
     public static void main(String[] args) {

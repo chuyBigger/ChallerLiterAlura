@@ -3,6 +3,7 @@ package com.aluracursos.challergerliteralura.service;
 import com.aluracursos.challergerliteralura.modelos.Autor;
 import com.aluracursos.challergerliteralura.modelos.Idioma;
 import com.aluracursos.challergerliteralura.modelos.Libro;
+import com.aluracursos.challergerliteralura.repositorio.AutorRepositorio;
 import com.aluracursos.challergerliteralura.repositorio.LibroRepositorio;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,11 @@ public class FuncionesAdicionales {
 
     Scanner scanner = new Scanner(System.in);
     private final LibroRepositorio repository;
+    private final AutorRepositorio autorRepository;
 
-    public FuncionesAdicionales(LibroRepositorio repository) {
+    public FuncionesAdicionales(LibroRepositorio repository, AutorRepositorio autorRepository) {
         this.repository = repository;
+        this.autorRepository = autorRepository;
     }
 
 
@@ -99,7 +102,6 @@ public class FuncionesAdicionales {
 
     }
 
-
     @Transactional
     public List<Libro> todosLosLibrosDB() {
 
@@ -113,6 +115,10 @@ public class FuncionesAdicionales {
 
         return listaLibrosDB;
 
+    }
+
+    public List<Autor> listaAutoresDefuntosAño(Integer anio){
+        return autorRepository.findByFechaNacimientoLessThanEqualAndFechaDefuncionGreaterThanOrFechaDefuncionIsNull(anio, anio);
     }
 
 }
