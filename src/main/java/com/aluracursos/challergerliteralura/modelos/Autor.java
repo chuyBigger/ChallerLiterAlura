@@ -90,8 +90,6 @@ public class Autor {
                 ___________________________
                 ===========================
                 """, nombre, fechaNacimiento,fechaDefuncion);
-//                "Autor:\n " + nombre +
-//                " / Fecha de Nacimiento: " + fechaNacimiento +
-//                " / Fecha de Defuncion: " + fechaDefuncion ;
+
     }
 }

@@ -12,10 +12,15 @@ import org.springframework.context.ConfigurableApplicationContext;
 public class ChallergerLiterAluraApplication implements CommandLineRunner {
 
     @Autowired
+    Principal principal;
+
+    @Autowired
     LibroRepositorio repository ;
 
     @Autowired
     private ConfigurableApplicationContext context;
+
+
 
     public static void main(String[] args) {
 
@@ -24,7 +29,7 @@ public class ChallergerLiterAluraApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Principal principal = new Principal(repository);
+
         principal.muestraElMenu();
 
         SpringApplication.exit(context, () -> 0);

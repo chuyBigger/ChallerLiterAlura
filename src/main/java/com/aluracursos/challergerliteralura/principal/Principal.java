@@ -1,13 +1,19 @@
 package com.aluracursos.challergerliteralura.principal;
 
 import com.aluracursos.challergerliteralura.modelos.Autor;
+import com.aluracursos.challergerliteralura.modelos.Idioma;
 import com.aluracursos.challergerliteralura.modelos.Libro;
 import com.aluracursos.challergerliteralura.repositorio.LibroRepositorio;
 import com.aluracursos.challergerliteralura.service.*;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
+@Component
 public class Principal {
 
     private LibroRepositorio repository = null;
@@ -17,13 +23,15 @@ public class Principal {
     ConvertirDatos convertirDatos = new ConvertirDatos();
     ConfigUrl configUrl = new ConfigUrl();
     ConsultaGemini consultaGemini = new ConsultaGemini();
-    FuncionesAdicionales funcionesAdicionales = new FuncionesAdicionales(repository);
+    private  final FuncionesAdicionales funcionesAdicionales;
 
 
     Integer entradaInt;
+    @Autowired
+    public Principal(LibroRepositorio repository, FuncionesAdicionales funcionesAdicionales) {
 
-    public Principal(LibroRepositorio repository) {
         this.repository = repository;
+        this.funcionesAdicionales = funcionesAdicionales;
     }
 
 
@@ -33,17 +41,20 @@ public class Principal {
 
         do {
             System.out.println("""
-                     ==============================================
-                     ªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªª
+                     =======================================*======================================
+                     ªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªªª
                                 1.- Buscar Libros por titulo
                                 2.- Lista de todo los libros en Base de Datos
                                 3.- Mostrar Lista De Autores en la Base de Datos 
                                 4.- Mostrar Lista de Autores vivos en un año especifico
-                                5.- 
+                                5.- Mostrar Lista de libros Por idioma seleccionado 
+                                6.- Mostrar Cantidad de Libros Por idioma en base de datos 
+                                7.- 
+                                8.-
                     
                                 0.- Salir;
                     
-                    ===============================================                                
+                    ========================================*======================================                                
                     
                     """);
             String entrada = scanner.nextLine();
@@ -65,6 +76,15 @@ public class Principal {
                     break;
                 case 4:
                     mostrarListaAutoresVivosEn();
+                    break;
+                case 5:
+                    mostrarListaIdiomaSeleccionado();
+                    break;
+                case 6:
+                    mostrarListaLibrosTodosIdiomas();
+                    break;
+                case 7:
+                    mostrarListaAutoresVivosEnDeliveryQuerys();
                     break;
                 case 0:
                     System.out.println("Gracias por usar nuestro sistema");
@@ -124,13 +144,7 @@ public class Principal {
     }
 
     private void mostrarListaLibrosDB() {
-        List<Libro> listaLibrosDB = repository.findAll();
-        if (listaLibrosDB.isEmpty()) {
-            System.out.println("No hay Libros en la base de Datos");
-        } else {
-            System.out.println("Lista de libros DB completa");
-            listaLibrosDB.forEach(System.out::println);
-        }
+        List<Libro> LibrosDB = funcionesAdicionales.todosLosLibrosDB();
     }
 
     private void mostrarListaAutores() {
@@ -153,6 +167,46 @@ public class Principal {
             autoresVivosEn.forEach(System.out::println);
         }
     }
+
+    private void mostrarListaIdiomaSeleccionado(){
+        Idioma idiomaBusqueda = funcionesAdicionales.entradaSolicitudLibrosIdioma();
+        List<Libro> listaLibrosIdioma = repository.findByIdioma(idiomaBusqueda);
+        if (!listaLibrosIdioma.isEmpty()){
+            System.out.println("Estos son los libros en el idioma: "+ idiomaBusqueda );
+            listaLibrosIdioma.forEach(System.out::println);
+        }else {
+            System.out.println("⚠️ No hay libros disponibles en ese idioma.");
+        }
+
+    }
+
+    private void mostrarListaLibrosTodosIdiomas(){
+        List<Object[]> cantidadLibrosporidioma = repository.contarLibrosIdioma();
+        System.out.println("""
+                ==============================================
+                * LIBROS  /  * iDIOMA
+                ______________________________________________
+                """);
+
+        for(Object[] resultado : cantidadLibrosporidioma){
+
+            Idioma idioma = (Idioma) resultado[0];
+            Long cantidad = (Long) resultado[1];
+            System.out.printf("%-10s | %d%n", idioma.name(), cantidad);
+
+        }
+
+        System.out.println(" ______________________________________________");
+        
+    }
+
+    private void mostrarListaAutoresVivosEnDeliveryQuerys(){
+
+        return
+
+    }
+
+
 
 }
 
